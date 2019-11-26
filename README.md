@@ -9,4 +9,4 @@ Dieser Knowledge Graph kann<br>
 <br><br>
 Der Knowledge Graph ist nicht nur ein Projekt, sondern ein weiterer Datensatz für die nächsten Wettbewerbe - er kann wachsen (bspw. durch Einbindung von Wikidata, der GND, Twitter...), einheitliche & offene Daten für die Website generieren und prinzipiell auch die wahrscheinlichsten Gewinner vorhersagen! ;)
 <br><br><br>
-![Knowledge Graph](https://github.com/LuisMossburger/VisualizingDaVinci/blob/master/KnowledgeGraph.jpg)
+![Knowledge Graph](https://github.com/LuisMossburger/VisualizingDaVinci/blob/master/KnowledgeGraph.png)
