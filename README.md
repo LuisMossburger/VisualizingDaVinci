@@ -1,5 +1,5 @@
 # VisualizingDaVinci
-visualize Coding Da Vinci and its impact in a Knowledge Graph. A project started @ Coding Da Vinci West 2019.
+visualize Coding Da Vinci and its impact in a Knowledge Graph. A project started @CodingDaVinci West 2019.
 
 Warum eigentlich nur mit einem Datensatz arbeiten? Wie wäre es stattdessen, _alle_ Datensätze, Personen, Projekte, Artikel und weitere Infos zu Coding Da Vinci zusammenzubringen? VisualizingDaVinci baut dafür mit einem Scraper für die Daten auf der Website codingdavinci.de einen Knowledge Graph mit Linked Open Data auf. 
 <br><br>
