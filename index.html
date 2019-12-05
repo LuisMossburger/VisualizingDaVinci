@@ -285,7 +285,7 @@
     <span onclick="newGraph(triples);"><b>Visualizing</b>DaVinci</span>
 		<span onclick="newGraph(triples_winner);">Gewinner-Projekte</span>
 		<span onclick="newGraph(triples_twitter);">Personen auf Twitter</span>
-		<span onclick="newGraph(triples_gewinnermails);">Gwinner mit eMails</span>
+		<span onclick="newGraph(triples_winnermails);">Gewinner mit eMails</span>
     <span id="open" onclick="openMenu();"><span id="openSymbol">+</span></span>
   </div></div>
   <div id="svg-body" class="panel-body"></div>
@@ -293,8 +293,8 @@
   <script>
 
 	var svg = d3.select("#svg-body").append("svg")
-				.attr("width", 4000)
-				.attr("height", 3000)
+				.attr("width", 10000)
+				.attr("height", 10000)
 				;
 
 	var force = d3.layout.force().size([4000, 3000]);
