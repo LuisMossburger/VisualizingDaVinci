@@ -1,0 +1,317 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>VisualizingDaVinci</title>
+
+	<link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
+
+	<style type="text/css">
+		* {
+		  padding: 0;
+		  border: none !important;
+		  margin: 0;
+		  font-family: "Montserrat", sans-serif;
+		}
+
+		body {
+		  background: url("src/img/cdv_dark.png") center no-repeat;
+		  background-attachment: fixed;
+		  background-size: cover;
+ 		  text-align: center;
+		}
+
+		body img#cdv_logo {
+		  height: auto;
+		  width: 15em;
+		  position: fixed;
+		  top: 0;
+		  left: 8em;
+		  z-index: 5;
+		  box-shadow: 0 0 0.2em 0.5em rgba(20, 20, 20, 0.8);
+		}
+
+		body #menu {
+		  width: 100%;
+		  padding: 0.8em 4em 0.8em 23em;
+		  padding-right: 4em;
+		  position: fixed;
+		  top: -5em;
+		  right: 0;
+		  text-align: right;
+		  font-size: 1.5em;
+ 		  font-weight: lighter;
+		  background-color: #000;
+			overflow-x: scroll;
+		  transition: all ease-out 0.4s;
+		}
+
+		body #menu * {
+		  color: #fff;
+		}
+
+		body #menu span {
+			padding: 0.2em 0.8em;
+		}
+
+		body #menu span:hover, body #menu span:focus,
+		body #menu b:hover, body #menu b:focus {
+			cursor: pointer;
+		}
+
+		body #menu b {
+		  font-weight: bold;
+		}
+
+		body #menu span#open {
+		  padding: 0.8em;
+		  position: fixed;
+		  top: 0em;
+		  right: 0em;
+		  font-weight: bold;
+		  color: #000;
+		  background-color: #00be7b;
+		}
+
+		body #menu span#open:hover, body #menu span#open:focus {
+		  cursor: pointer;
+		}
+
+		body #menu #openSymbol {
+		  transition: all ease-out 0.4s;
+		}
+
+		.node {
+		  stroke: #00be7b;
+		  fill:#00BE7B;
+		  stroke-width: 1.5px;
+		}
+
+		.link {
+		  stroke: #333;
+		  stroke-opacity: .6;
+		  stroke-width: 1px;
+		}
+
+		marker {
+			stroke: #333;
+			fill:rgba(124,240,10,0);
+		}
+
+		.node-text {
+		  font: 11px sans-serif;
+		  fill:#444;
+		}
+
+		.link-text {
+		  font: 9pxsans-serif;
+		  fill:#333;
+		}
+	</style>
+
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+	<script src="https://d3js.org/d3.v3.min.js"></script>
+	<script>
+		function openMenu() {
+		  if (document.getElementById("menu").style.top === "0em") {
+		    document.getElementById("menu").style.top = "-5em";
+		    document.getElementById("openSymbol").innerHTML = "+";
+		  } else {
+		    document.getElementById("menu").style.top = "0em";
+		    document.getElementById("openSymbol").innerHTML = "x";
+		  }
+		}
+
+		function filterNodesById(nodes,id){
+			return nodes.filter(function(n) { return n.id === id; });
+		}
+
+		function triplesToGraph(triples){
+
+			svg.html("");
+			//Graph
+			var graph={nodes:[], links:[]};
+
+			//Initial Graph from triples
+			triples.forEach(function(triple){
+				var subjId = triple.subject;
+				var predId = triple.predicate;
+				var objId = triple.object;
+
+				var subjNode = filterNodesById(graph.nodes, subjId)[0];
+				var objNode  = filterNodesById(graph.nodes, objId)[0];
+
+				if(subjNode==null){
+					subjNode = {id:subjId, label:subjId, weight:1};
+					graph.nodes.push(subjNode);
+				}
+
+				if(objNode==null){
+					objNode = {id:objId, label:objId, weight:1};
+					graph.nodes.push(objNode);
+				}
+
+
+				graph.links.push({source:subjNode, target:objNode, predicate:predId, weight:1});
+			});
+
+			return graph;
+		}
+
+
+		function update(){
+			// ==================== Add Marker ====================
+			svg.append("svg:defs").selectAll("marker")
+			    .data(["end"])
+			  .enter().append("svg:marker")
+			    .attr("id", String)
+			    .attr("viewBox", "0 -5 10 10")
+			    .attr("refX", 30)
+			    .attr("refY", -0.5)
+			    .attr("markerWidth", 6)
+			    .attr("markerHeight", 6)
+			    .attr("orient", "auto")
+			  .append("svg:polyline")
+			    .attr("points", "0,-5 10,0 0,5")
+			    ;
+
+			// ==================== Add Links ====================
+			var links = svg.selectAll(".link")
+								.data(graph.links)
+								.enter()
+								.append("line")
+									.attr("marker-end", "url(#end)")
+									.attr("class", "link")
+									.attr("stroke-width",1)
+									.style("stroke",cdvColor)
+							;//links
+
+			// ==================== Add Link Names =====================
+			var linkTexts = svg.selectAll(".link-text")
+		                .data(graph.links)
+		                .enter()
+		                .append("text")
+							.attr("class", "link-text")
+							.text( function (d) { return d.predicate; })
+						;
+
+				//linkTexts.append("title")
+				//		.text(function(d) { return d.predicate; });
+
+			// ==================== Add Link Names =====================
+			var nodeTexts = svg.selectAll(".node-text")
+		                .data(graph.nodes)
+		                .enter()
+		                .append("text")
+							.attr("class", "node-text")
+							.text( function (d) { return d.label; })
+						;
+
+				//nodeTexts.append("title")
+				//		.text(function(d) { return d.label; });
+
+			// ==================== Add Node =====================
+			var nodes = svg.selectAll(".node")
+								.data(graph.nodes)
+								.enter()
+								.append("circle")
+									.attr("class", "node")
+									.attr("r",4)
+									.call(force.drag)
+							;//nodes
+
+			// ==================== Force ====================
+			force.on("tick", function() {
+				nodes
+					.attr("cx", function(d){ return d.x; })
+					.attr("cy", function(d){ return d.y; })
+					;
+
+				links
+					.attr("x1", 	function(d)	{ return d.source.x; })
+			        .attr("y1", 	function(d) { return d.source.y; })
+			        .attr("x2", 	function(d) { return d.target.x; })
+			        .attr("y2", 	function(d) { return d.target.y; })
+			       ;
+
+				nodeTexts
+					.attr("x", function(d) { return d.x + 12 ; })
+					.attr("y", function(d) { return d.y + 3; })
+					;
+
+
+				linkTexts
+					.attr("x", function(d) { return 4 + (d.source.x + d.target.x)/2  ; })
+					.attr("y", function(d) { return 4 + (d.source.y + d.target.y)/2 ; })
+					;
+			});
+
+			// ==================== Run ====================
+			force
+		      .nodes(graph.nodes)
+		      .links(graph.links)
+			  .charge(-500)
+			  .linkDistance(30)
+		      .start()
+			  ;
+		}
+
+		//function for coloring the nodes regarding cdv event
+		function cdvColor(d) {
+			if (d.source.label.toString() == "cdv_rheinmain" || d.target.label.toString() == "cdv_rheinmain") {
+				return "#962A71";
+			} else if (d.source.label.toString() == "cdv_ost" || d.target.label.toString() == "cdv_ost") {
+				return "#ff0030";
+			} else if (d.source.label.toString() == "cdv_nord" || d.target.label.toString() == "cdv_nord") {
+				return "#09f";
+			} else if (d.source.label.toString() == "cdv_berlin" || d.target.label.toString() == "cdv_berlin") {
+				return "#00be7b";
+			} else if (d.source.label.toString() == "cdv_sued" || d.target.label.toString() == "cdv_sued") {
+				return "#ffed00";
+			} else if (d.source.label.toString() == "cdv_west" || d.target.label.toString() == "cdv_west") {
+				return "#FDA87E";
+			} else if (d.source.label.toString() == "cdv" || d.target.label.toString() == "cdv") {
+				return "#00be7b";
+			}
+		}
+
+
+	</script>
+</head>
+<body>
+  <!--<h1>VISUALIZING DA VINCI</h1>-->
+  <img id="cdv_logo" src="src/img/cdv_logo.png">
+  <div id="menu"><div id="menu_spacer">
+    <span onclick="newGraph(triples);"><b>Visualizing</b>DaVinci</span>
+		<span onclick="newGraph(triples_winner);">Gewinner-Projekte</span>
+		<span onclick="newGraph(triples_twitter);">Personen auf Twitter</span>
+    <span id="open" onclick="openMenu();"><span id="openSymbol">+</span></span>
+  </div></div>
+  <div id="svg-body" class="panel-body"></div>
+	<script src="src/js/rdf.js"></script>
+  <script>
+
+	var svg = d3.select("#svg-body").append("svg")
+				.attr("width", 4000)
+				.attr("height", 3000)
+				;
+
+	var force = d3.layout.force().size([4000, 3000]);
+
+	function newGraph(topic) {
+		graph = triplesToGraph(topic);
+		update();
+	}
+
+	 //start first graph onload
+	 newGraph(triples);
+
+  </script>
+
+
+<!--  <footer style="margin-top:40px; padding:20px; height:50px; border-top:1px solid #eee; background:#fafafa; text-align:center">
+	By: <strong>Rathachai Chawuthai</strong>
+	<br/>
+	<a target="_blank" href="https://github.com/Rathachai">GitHub</a> | <a target="_blank" href="https://www.linkedin.com/in/rathachai">LinkedIn</a>
+  </footer>-->
+</body>
